@@ -80,6 +80,12 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
             "BetterImages: Copied to clipboard!",
           );
           break;
+        case "colorPicked":
+          vscode.env.clipboard.writeText(data.value);
+          vscode.window.showInformationMessage(
+            `BetterImages: Color ${data.value} copied to clipboard!`,
+          );
+          break;
         case "generateDummy":
           this.handleGenerateDummy(data.payload);
           break;
@@ -117,7 +123,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
       width = metadata.width || 0;
       height = metadata.height || 0;
 
-      if (metadata.exif || metadata.icc || metadata.xmp || metadata.iptc) {
+      if (metadata.exif || metadata.xmp || metadata.iptc) {
         hasExif = true;
       }
     } catch (error) {
@@ -147,6 +153,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
     format: string;
     quality: number;
     clean: boolean;
+    filter: string;
   }) {
     if (!this._currentImagePath) {
       vscode.window.showErrorMessage("BetterImages: No image selected.");
@@ -158,14 +165,32 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
       const parsedPath = path.parse(this._currentImagePath);
       let img = sharp(this._currentImagePath);
 
+      // 1. Metadata Handling
       if (!payload.clean) {
         img = img.withMetadata();
       }
 
+      // 2. Filters (Sepia corregido con matriz de recombinación real y Sharpen eliminado)
+      if (payload.filter === "grayscale") {
+        img = img.grayscale();
+      } else if (payload.filter === "sepia") {
+        img = img.recomb([
+          [0.393, 0.769, 0.189],
+          [0.349, 0.686, 0.168],
+          [0.272, 0.534, 0.131],
+        ]);
+      } else if (payload.filter === "negate") {
+        img = img.negate();
+      } else if (payload.filter === "blur") {
+        img = img.blur(5);
+      }
+
+      // 3. Resize
       if (payload.w && payload.h) {
         img = img.resize(payload.w, payload.h, { fit: "fill" });
       }
 
+      // 4. Format & Quality
       let outExt = parsedPath.ext;
       if (payload.format === "webp") {
         img = img.webp({ quality: payload.quality });
@@ -182,13 +207,18 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
         }
       }
 
+      // 5. Smart Filename Generation
       let modifiers = [];
       if (payload.w && payload.h) modifiers.push(`${payload.w}x${payload.h}`);
+      if (payload.filter !== "none") modifiers.push(payload.filter);
       if (payload.clean) modifiers.push("clean");
-      if (payload.format !== "original") modifiers.push(`q${payload.quality}`);
 
       const modStr =
-        modifiers.length > 0 ? `-${modifiers.join("-")}` : "-processed";
+        modifiers.length > 0
+          ? `-${modifiers.join("-")}`
+          : payload.format !== "original"
+            ? "-optimized"
+            : "-processed";
       const newFilePath = path.join(
         parsedPath.dir,
         `${parsedPath.name}${modStr}${outExt}`,
@@ -439,12 +469,26 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                             <input type="number" id="resH" class="input-field flex-1" style="margin:0;" placeholder="H" />
                         </div>
                         
-                        <label>Format</label>
-                        <select id="exportFormat" class="input-field">
-                            <option value="original">Keep Original</option>
-                            <option value="webp">WebP</option>
-                            <option value="avif">AVIF</option>
-                        </select>
+                        <div class="flex-row" style="gap: 10px;">
+                            <div class="flex-1">
+                                <label>Format</label>
+                                <select id="exportFormat" class="input-field">
+                                    <option value="original">Keep Original</option>
+                                    <option value="webp">WebP</option>
+                                    <option value="avif">AVIF</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label>Filter</label>
+                                <select id="exportFilter" class="input-field">
+                                    <option value="none">None</option>
+                                    <option value="grayscale">Grayscale</option>
+                                    <option value="sepia">Sepia</option>
+                                    <option value="blur">Blur</option>
+                                    <option value="negate">Negate</option>
+                                </select>
+                            </div>
+                        </div>
                         
                         <div class="flex-row" style="justify-content: space-between;">
                             <label>Quality:</label>
@@ -466,9 +510,22 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                 </div>
 
                 <div class="section-title" style="margin-top:30px;">Global Tools</div>
+                
+                <div class="card">
+                    <label>Color Picker</label>
+                    <div class="flex-row" style="margin-bottom: 10px; margin-top: 5px;">
+                        <button class="btn btn-secondary flex-1" id="btnEyedropper" style="margin:0;">🔍 Pick from Screen</button>
+                        <div id="colorSwatch" style="width: 32px; height: 32px; background: transparent; border: 1px solid var(--vscode-widget-border); border-radius: 4px;"></div>
+                    </div>
+                    <div class="flex-row">
+                        <input type="text" id="colorHexOut" class="input-field flex-1" readonly placeholder="HEX" style="margin: 0; cursor: pointer; text-align: center;" title="Click to copy HEX" />
+                        <input type="text" id="colorRgbOut" class="input-field flex-1" readonly placeholder="RGB" style="margin: 0; cursor: pointer; text-align: center;" title="Click to copy RGB" />
+                    </div>
+                </div>
+
                 <div class="card">
                     <label>Dummy Placeholder</label>
-                    <div class="flex-row">
+                    <div class="flex-row" style="margin-top: 5px;">
                         <input type="number" id="dummyW" class="input-field" value="800" placeholder="W" />
                         <input type="number" id="dummyH" class="input-field" value="600" placeholder="H" />
                     </div>
@@ -496,6 +553,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                     const resH = document.getElementById('resH');
                     const btnLockRatio = document.getElementById('btnLockRatio');
                     const exportFormat = document.getElementById('exportFormat');
+                    const exportFilter = document.getElementById('exportFilter');
                     const qualSlider = document.getElementById('qualSlider');
                     const qualValue = document.getElementById('qualValue');
                     const exportClean = document.getElementById('exportClean');
@@ -557,6 +615,8 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                             // Initialize Batch UI
                             resW.value = currentImg.width || '';
                             resH.value = currentImg.height || '';
+                            exportFilter.value = 'none';
+                            
                             if (currentImg.width && currentImg.height) {
                                 originalRatio = currentImg.width / currentImg.height;
                             }
@@ -564,7 +624,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                             if (currentImg.hasExif) {
                                 valExif.textContent = 'Detected (Adds Size)';
                                 valExif.className = 'info-value text-danger';
-                                exportClean.checked = true; // Auto-check if metadata is found
+                                exportClean.checked = true;
                             } else {
                                 valExif.textContent = 'Clean';
                                 valExif.className = 'info-value text-success';
@@ -697,7 +757,6 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                         let imports = '';
                         let mapBlock = '';
 
-                        // 1. Generate Map Block
                         if (hasMap) {
                             mapBlock = \`\\n<map name="\${mapName}">\\n\`;
                             mapAreas.forEach((a, i) => { 
@@ -707,7 +766,6 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                             mapBlock += \`</map>\`;
                         }
 
-                        // 2. Generate Image Tag and wrap based on Framework
                         if (fw.value === 'react') { 
                             const dimJ = (w && h) ? \` width={\${w}} height={\${h}}\` : ''; 
                             tag = \`<img src="\${src}" alt="\${altText}"\${dimJ}\${useMapAttr} loading="lazy" />\`; 
@@ -750,7 +808,6 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                             final = imports + tag + mapBlock;
                         } 
                         else { 
-                            // HTML5
                             const dim = (w && h) ? \` width="\${w}" height="\${h}"\` : ''; 
                             tag = \`<img src="\${src}" alt="\${altText}"\${dim}\${useMapAttr} loading="lazy">\`; 
                             final = (resp.checked ? \`<picture>\\n  <source media="(max-width: 768px)" srcset="\${mSrc}">\\n  \${tag}\\n</picture>\` : tag) + mapBlock; 
@@ -769,6 +826,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                                 w: parseInt(resW.value),
                                 h: parseInt(resH.value),
                                 format: exportFormat.value,
+                                filter: exportFilter.value,
                                 quality: parseInt(qualSlider.value),
                                 clean: exportClean.checked
                             }
@@ -780,6 +838,40 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
                     document.getElementById('btnBase64').addEventListener('click', () => { vscode.postMessage({type:'copyBase64'}) });
                     document.getElementById('btnGenerateDummy').addEventListener('click', () => {
                         vscode.postMessage({type:'generateDummy', payload:{w: document.getElementById('dummyW').value, h: document.getElementById('dummyH').value, bg: document.getElementById('dummyBg').value, color: document.getElementById('dummyColor').value, text: document.getElementById('dummyText').value}});
+                    });
+
+                    // --- EYEDROPPER TOOL ---
+                    document.getElementById('btnEyedropper').addEventListener('click', async () => {
+                        if (!window.EyeDropper) {
+                            vscode.postMessage({type:'onError', value: 'EyeDropper is not supported in this version of VS Code.'});
+                            return;
+                        }
+                        try {
+                            const eyeDropper = new EyeDropper();
+                            const result = await eyeDropper.open();
+                            const hex = result.sRGBHex;
+                            
+                            // Convert HEX to RGB
+                            const r = parseInt(hex.slice(1, 3), 16);
+                            const g = parseInt(hex.slice(3, 5), 16);
+                            const b = parseInt(hex.slice(5, 7), 16);
+                            const rgb = \`rgb(\${r}, \${g}, \${b})\`;
+
+                            // Update UI
+                            document.getElementById('colorSwatch').style.background = hex;
+                            document.getElementById('colorHexOut').value = hex;
+                            document.getElementById('colorRgbOut').value = rgb;
+                        } catch (e) {
+                            // Cancelled by user
+                        }
+                    });
+
+                    // Click inputs to copy
+                    document.getElementById('colorHexOut').addEventListener('click', (e) => {
+                        if(e.target.value) vscode.postMessage({type:'copyToClipboard', value: e.target.value});
+                    });
+                    document.getElementById('colorRgbOut').addEventListener('click', (e) => {
+                        if(e.target.value) vscode.postMessage({type:'copyToClipboard', value: e.target.value});
                     });
                 </script>
             </body>

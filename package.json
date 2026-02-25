@@ -1,13 +1,30 @@
 {
-  "name": "betterimagesbysergio",
+  "name": "betterimages",
   "displayName": "BetterImagesBySergio",
   "description": "Collection of tools for working with images",
-  "version": "0.0.1",
+  "version": "1.2.0",
+  "publisher": "DevBySergio",
+  "icon": "media/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DevBySergio/BetterImages_by_Sergio"
+  },
   "engines": {
     "vscode": "^1.109.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "image",
+    "optimization",
+    "webp",
+    "avif",
+    "nextjs",
+    "react",
+    "crop"
   ],
   "main": "./out/extension.js",
   "activationEvents": [],

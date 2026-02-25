@@ -1,71 +1,82 @@
-# betterimagesbysergio README
+# BetterImages 📸
 
-This is the README for your extension "betterimagesbysergio". After writing up a brief description, we recommend including the following sections.
+**BetterImages** is a professional image optimization and code generation suite designed for frontend developers who want to streamline their workflow and save time without leaving their editor.
 
-## Features
+Unlike web-based converters or heavy external software, **BetterImages works 100% locally**. Your images and data never leave your machine.
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## ✨ Key Features
 
-For example if there is an image subfolder under your extension project workspace:
+### 1. 💻 Framework-Aware Code Generation
 
-\!\[feature X\]\(images/feature-x.png\)
+Stop writing boilerplate image tags. Select an image, choose your framework, and instantly get production-ready code:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- **Next.js & Nuxt:** Auto-imports and generates optimized `<Image>` / `<NuxtImg>` components.
+- **React, Astro, Vue & HTML5:** Automatically generates responsive `<picture>` wrappers and standard tags with dynamic width/height attributes.
+- **Responsive Toggle:** Wrap any image in a `<picture>` tag ready for mobile assets with a single click.
 
-## Requirements
+### 2. 🎨 Interactive Canvas Tools
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Draw directly on your images inside VS Code!
 
-## Extension Settings
+- **Image Map Generator:** Draw rectangles or perfect circles over your image to instantly generate `<map>` and `<area>` HTML coordinates. The code updates in real-time.
+- **Crop Tool:** Visually drag a crop box and save a perfectly trimmed copy of your image directly into your workspace.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+### 3. 🚀 Batch Export & Optimization Pipeline
 
-For example:
+A built-in powerhouse powered by `sharp`. Apply multiple transformations at once and export a single, perfect file:
 
-This extension contributes the following settings:
+- **Smart Resize:** Change dimensions with a built-in Aspect Ratio lock (🔒) to prevent distortion.
+- **Next-Gen Formats:** Convert any image to **WebP** or **AVIF** with an adjustable quality slider (1% - 100%).
+- **Metadata Stripper:** Automatically detects if your image has heavy EXIF data (GPS, Camera info) and strips it clean to save kilobytes.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### 4. ⚡ Global Developer Tools
 
-## Known Issues
+Tools available at all times, even without selecting an image:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+- **Favicon Generator:** One-click generation of `16x16`, `32x32`, and `180x180` Apple Touch icons, copying the required HTML `<link>` tags straight to your clipboard.
+- **Base64 Converter:** Copy any image as a Base64 Data URI string.
+- **Dummy Image Generator:** Need a placeholder? Generate an SVG placeholder of any size, background color, and text directly into your project root.
 
 ---
 
-## Following extension guidelines
+## 🚀 How to Use
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Once installed, BetterImages integrates directly into your VS Code Explorer.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+### Basic Workflow
 
-## Working with Markdown
+1. Open your VS Code Explorer.
+2. **Right-click** on any image file (`.jpg`, `.png`, `.webp`, `.avif`, etc.).
+3. Select **`Process with BetterImages`** from the context menu.
+4. The BetterImages Toolbox will open in your sidebar, ready to use!
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+---
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## 📸 Screenshots
 
-## For more information
+### Toolbox Overview
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+![Toolbox Overview](media/screenshot-overview.png)
 
-**Enjoy!**
+### Interactive Canvas & Crop
+
+![Canvas View](media/screenshot-canvas.png)
+
+---
+
+## 🛡️ Privacy Policy
+
+Your assets are yours.
+
+- **No Telemetry:** This extension does **NOT** send any images, usage data, or analytics to external servers.
+- **Local Processing:** All image conversions, cropping, and optimizations are calculated and executed 100% locally on your machine using the `sharp` library.
+
+---
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+**Happy Coding!** 🚀
