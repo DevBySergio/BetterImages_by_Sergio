@@ -170,7 +170,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
         img = img.withMetadata();
       }
 
-      // 2. Filters (Sepia corregido con matriz de recombinación real y Sharpen eliminado)
+      // 2. Filters
       if (payload.filter === "grayscale") {
         img = img.grayscale();
       } else if (payload.filter === "sepia") {

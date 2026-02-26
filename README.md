@@ -27,12 +27,14 @@ A built-in powerhouse powered by `sharp`. Apply multiple transformations at once
 
 - **Smart Resize:** Change dimensions with a built-in Aspect Ratio lock (🔒) to prevent distortion.
 - **Next-Gen Formats:** Convert any image to **WebP** or **AVIF** with an adjustable quality slider (1% - 100%).
+- **New Filters:** Instantly apply **Grayscale**, a warm **Sepia**, or a strong **Blur** (perfect for background assets).
 - **Metadata Stripper:** Automatically detects if your image has heavy EXIF data (GPS, Camera info) and strips it clean to save kilobytes.
 
 ### 4. ⚡ Global Developer Tools
 
 Tools available at all times, even without selecting an image:
 
+- **Color Picker (🔍 NEW):** Use the Eyedropper to pick any color from your screen (image, code, or interface) and view its HEX and RGB code. Click to copy instantly.
 - **Favicon Generator:** One-click generation of `16x16`, `32x32`, and `180x180` Apple Touch icons, copying the required HTML `<link>` tags straight to your clipboard.
 - **Base64 Converter:** Copy any image as a Base64 Data URI string.
 - **Dummy Image Generator:** Need a placeholder? Generate an SVG placeholder of any size, background color, and text directly into your project root.
