@@ -12,7 +12,7 @@
     "url": "https://github.com/DevBySergio/BetterImages_by_Sergio"
   },
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other",
@@ -76,10 +76,12 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
-    "package:darwin-arm64": "vsce package --target darwin-arm64",
-    "package:darwin-x64": "vsce package --target darwin-x64",
-    "package:linux-x64": "vsce package --target linux-x64",
-    "package:win32-x64": "vsce package --target win32-x64"
+    "package:universal": "vsce package --out betterimages-1.4.0.vsix",
+    "package:darwin-arm64": "vsce package --target darwin-arm64 --ignoreFile build/vscodeignore.darwin-arm64",
+    "package:darwin-x64": "vsce package --target darwin-x64 --ignoreFile build/vscodeignore.darwin-x64",
+    "package:linux-x64": "vsce package --target linux-x64 --ignoreFile build/vscodeignore.linux-x64",
+    "package:win32-x64": "vsce package --target win32-x64 --ignoreFile build/vscodeignore.win32-x64",
+    "package:all": "npm run package:darwin-arm64 && npm run package:darwin-x64 && npm run package:linux-x64 && npm run package:win32-x64"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -98,6 +100,9 @@
   "optionalDependencies": {
     "@img/sharp-darwin-arm64": "^0.34.5",
     "@img/sharp-darwin-x64": "^0.34.5",
+    "@img/sharp-libvips-darwin-arm64": "^1.2.4",
+    "@img/sharp-libvips-darwin-x64": "^1.2.4",
+    "@img/sharp-libvips-linux-x64": "^1.2.4",
     "@img/sharp-linux-x64": "^0.34.5",
     "@img/sharp-win32-x64": "^0.34.5"
   },
