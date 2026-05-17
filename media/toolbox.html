@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src {{cspSource}} data:; style-src {{cspSource}}; script-src 'nonce-{{nonce}}';"
+    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{styleUri}}" rel="stylesheet">
+    <title>BetterImages</title>
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>BetterImages</h1>
+        <p>Local image tools for frontend assets.</p>
+      </div>
+    </header>
+
+    <div id="statusBar" class="status-bar" hidden></div>
+
+    <section id="emptyState" class="empty-state">
+      <strong>No image selected</strong>
+      <span>Use the Explorer context menu to unlock export, code and canvas tools.</span>
+    </section>
+
+    <main id="activeState" hidden>
+      <section class="image-summary">
+        <div class="preview">
+          <div class="image-shell">
+            <img id="imagePreview" alt="">
+            <canvas id="mainCanvas"></canvas>
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div><span>Name</span><strong id="valName">-</strong></div>
+          <div><span>Size</span><strong id="valSize">-</strong></div>
+          <div><span>Dimensions</span><strong id="valDim">-</strong></div>
+          <div><span>Metadata</span><strong id="valExif">-</strong></div>
+        </div>
+      </section>
+
+      <details class="tool-section" open>
+        <summary>Export & Optimize</summary>
+        <div class="section-body">
+          <label>Resize</label>
+          <div class="grid-3">
+            <input type="number" id="resW" placeholder="W" min="1">
+            <button id="btnLockRatio" class="icon-button" title="Toggle aspect ratio lock">Lock</button>
+            <input type="number" id="resH" placeholder="H" min="1">
+          </div>
+
+          <label>Resize Fit</label>
+          <select id="resizeFit">
+            <option value="inside">Inside</option>
+            <option value="contain">Contain</option>
+            <option value="cover">Cover</option>
+            <option value="fill">Fill</option>
+          </select>
+
+          <div class="grid-2">
+            <div>
+              <label>Format</label>
+              <select id="exportFormat">
+                <option value="original">Keep Original</option>
+                <option value="webp">WebP</option>
+                <option value="avif">AVIF</option>
+              </select>
+            </div>
+            <div>
+              <label>Filter</label>
+              <select id="exportFilter">
+                <option value="none">None</option>
+                <option value="grayscale">Grayscale</option>
+                <option value="sepia">Sepia</option>
+                <option value="blur">Blur</option>
+                <option value="negate">Negate</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="range-head">
+            <label for="qualSlider">Quality</label>
+            <strong id="qualValue">80%</strong>
+          </div>
+          <input type="range" id="qualSlider" min="1" max="100" value="80">
+
+          <label class="check-row">
+            <input type="checkbox" id="exportClean">
+            <span>Strip metadata</span>
+          </label>
+
+          <div class="hint" id="exportPreview">Will save a processed copy next to the source image.</div>
+          <button class="primary" id="btnBatchProcess">Export Processed Image</button>
+        </div>
+      </details>
+
+      <details class="tool-section">
+        <summary>Code Generator</summary>
+        <div class="section-body">
+          <label>Framework</label>
+          <select id="fwSelect">
+            <option value="html">HTML5</option>
+            <option value="react">React JSX</option>
+            <option value="next">Next.js Image</option>
+            <option value="vue">Vue</option>
+            <option value="nuxt">NuxtImg</option>
+            <option value="angular">Angular</option>
+            <option value="astro">Astro Assets</option>
+          </select>
+
+          <label>Source Path</label>
+          <select id="pathMode">
+            <option value="relative">./image.png</option>
+            <option value="public">/image.png</option>
+            <option value="alias">@/assets/image.png</option>
+          </select>
+
+          <input type="text" id="altInput" placeholder="Alt text">
+          <label class="check-row">
+            <input type="checkbox" id="respCheck">
+            <span>Responsive source</span>
+          </label>
+
+          <textarea id="codeOutput" rows="8" readonly></textarea>
+          <div class="grid-3 buttons">
+            <button id="btnCopyCode">Full</button>
+            <button id="btnCopyImports">Imports</button>
+            <button id="btnCopyComponent">Component</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="tool-section">
+        <summary>Canvas & Image Map</summary>
+        <div class="section-body">
+          <div class="segmented">
+            <label><input type="radio" name="tool" value="off" checked><span>Off</span></label>
+            <label><input type="radio" name="tool" value="mapRect"><span>Rect</span></label>
+            <label><input type="radio" name="tool" value="mapCirc"><span>Circle</span></label>
+            <label><input type="radio" name="tool" value="crop"><span>Crop</span></label>
+          </div>
+          <div class="hint" id="canvasHint">Choose a canvas tool, then drag over the image preview.</div>
+          <div class="grid-2 buttons">
+            <button id="btnClearCanvas">Clear Areas</button>
+            <button class="primary" id="btnApplyCrop" disabled>Apply Crop</button>
+          </div>
+        </div>
+      </details>
+
+      <section class="quick-actions">
+        <button id="btnGenFavicons">Generate Favicons</button>
+        <button id="btnBase64">Copy Base64</button>
+      </section>
+    </main>
+
+    <section class="global-tools">
+      <h2>Global Tools</h2>
+
+      <details class="tool-section" open>
+        <summary>Dummy Placeholder</summary>
+        <div class="section-body">
+          <div class="grid-2">
+            <div>
+              <label>Width</label>
+              <input type="number" id="dummyW" value="800" min="1" placeholder="W">
+            </div>
+            <div>
+              <label>Height</label>
+              <input type="number" id="dummyH" value="600" min="1" placeholder="H">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label>Background</label>
+              <input type="color" id="dummyBg" value="#cccccc">
+            </div>
+            <div>
+              <label>Text</label>
+              <input type="color" id="dummyColor" value="#333333">
+            </div>
+          </div>
+          <input type="text" id="dummyText" placeholder="Custom text">
+          <button class="primary" id="btnGenerateDummy">Save Dummy to Project</button>
+        </div>
+      </details>
+
+      <details class="tool-section">
+        <summary>Color Picker</summary>
+        <div class="section-body">
+          <div class="grid-2 color-row">
+            <button id="btnEyedropper">Pick Color</button>
+            <div id="colorSwatch" aria-hidden="true"></div>
+          </div>
+          <div class="grid-2">
+            <input type="text" id="colorHexOut" readonly placeholder="HEX" title="Click to copy HEX">
+            <input type="text" id="colorRgbOut" readonly placeholder="RGB" title="Click to copy RGB">
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <script nonce="{{nonce}}" src="{{scriptUri}}"></script>
+  </body>
+</html>
