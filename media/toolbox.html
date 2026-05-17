@@ -44,6 +44,14 @@
       <details class="tool-section" open>
         <summary>Export & Optimize</summary>
         <div class="section-body">
+          <label>Presets</label>
+          <div class="preset-grid">
+            <button data-preset="thumb">Thumbnail</button>
+            <button data-preset="avatar">Avatar</button>
+            <button data-preset="hero">Hero</button>
+            <button data-preset="og">OG Image</button>
+          </div>
+
           <label>Resize</label>
           <div class="grid-3">
             <input type="number" id="resW" placeholder="W" min="1">
@@ -92,6 +100,7 @@
           </label>
 
           <div class="hint" id="exportPreview">Will save a processed copy next to the source image.</div>
+          <div class="result-box" id="exportResult" hidden></div>
           <button class="primary" id="btnBatchProcess">Export Processed Image</button>
         </div>
       </details>
@@ -128,6 +137,11 @@
             <button id="btnCopyCode">Full</button>
             <button id="btnCopyImports">Imports</button>
             <button id="btnCopyComponent">Component</button>
+          </div>
+          <div class="grid-3 buttons">
+            <button id="btnCopyMarkdown">Markdown</button>
+            <button id="btnCopyCss">CSS BG</button>
+            <button id="btnCopyHtml">HTML</button>
           </div>
         </div>
       </details>

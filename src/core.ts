@@ -62,6 +62,19 @@ export interface GeneratedCode {
   full: string;
   imports: string;
   component: string;
+  markdown: string;
+  cssBackground: string;
+  html: string;
+}
+
+export interface ExportSavings {
+  originalBytes: number;
+  outputBytes: number;
+  savedBytes: number;
+  savedPercent: number;
+  originalLabel: string;
+  outputLabel: string;
+  summary: string;
 }
 
 const maxDimension = 50_000;
@@ -258,7 +271,47 @@ export function buildImageCode(input: CodeGenerationInput): GeneratedCode {
   }
 
   const full = imports + component + mapBlock;
-  return { full, imports: imports.trimEnd(), component: (component + mapBlock).trim() };
+  return {
+    full,
+    imports: imports.trimEnd(),
+    component: (component + mapBlock).trim(),
+    markdown: `![${altText}](${escapedSrc})`,
+    cssBackground: `background-image: url("${escapedSrc}");`,
+    html: `<img src="${escapedSrc}" alt="${altText}"${htmlDim} loading="lazy">`,
+  };
+}
+
+export function calculateExportSavings(originalBytes: number, outputBytes: number): ExportSavings {
+  const savedBytes = originalBytes - outputBytes;
+  const savedPercent = originalBytes > 0 ? Math.round((savedBytes / originalBytes) * 100) : 0;
+  const originalLabel = formatBytes(originalBytes);
+  const outputLabel = formatBytes(outputBytes);
+  const direction = savedBytes >= 0 ? "saved" : "larger";
+  const absPercent = Math.abs(savedPercent);
+
+  return {
+    originalBytes,
+    outputBytes,
+    savedBytes,
+    savedPercent,
+    originalLabel,
+    outputLabel,
+    summary: `${originalLabel} -> ${outputLabel} (${direction} ${absPercent}%)`,
+  };
+}
+
+export function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    return "0 B";
+  }
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const kb = bytes / 1024;
+  if (kb < 1024) {
+    return `${formatNumber(kb)} KB`;
+  }
+  return `${formatNumber(kb / 1024)} MB`;
 }
 
 function isOneOf<T extends readonly string[]>(value: unknown, options: T): value is T[number] {
@@ -311,4 +364,8 @@ function escapeSingleQuotedAngular(value: string): string {
 
 function escapeJsString(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function formatNumber(value: number): string {
+  return value >= 100 ? value.toFixed(0) : value.toFixed(1);
 }

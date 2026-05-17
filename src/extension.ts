@@ -8,6 +8,7 @@ import {
   buildDummySvg,
   buildImageCode,
   buildProcessedFilePath,
+  calculateExportSavings,
   createUniqueFilePath,
   normalizeBatchPayload,
   normalizeCropPayload,
@@ -143,6 +144,7 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
     const sharp = require("sharp");
     const metadata = await sharp(imagePath).metadata();
     const newFilePath = buildProcessedFilePath(imagePath, normalizedPayload);
+    const originalBytes = fs.statSync(imagePath).size;
 
     this.postOperationState(true, `Exporting ${path.basename(newFilePath)}...`);
 
@@ -184,8 +186,17 @@ class BetterImagesSidebarProvider implements vscode.WebviewViewProvider {
     }
 
     await img.toFile(newFilePath);
+    const outputBytes = fs.statSync(newFilePath).size;
+    const savings = calculateExportSavings(originalBytes, outputBytes);
     this.postOperationState(false);
-    vscode.window.showInformationMessage(`BetterImages: Saved as ${path.basename(newFilePath)}.`);
+    this.view?.webview.postMessage({
+      type: "exportComplete",
+      data: {
+        fileName: path.basename(newFilePath),
+        ...savings,
+      },
+    });
+    vscode.window.showInformationMessage(`BetterImages: Saved ${path.basename(newFilePath)}. ${savings.summary}.`);
   }
 
   private async handleCrop(payload: CropPayload) {

@@ -10,7 +10,7 @@
   const ctx = canvas.getContext("2d");
 
   let currentImg = null;
-  let generatedCode = { full: "", imports: "", component: "" };
+  let generatedCode = { full: "", imports: "", component: "", markdown: "", cssBackground: "", html: "" };
   let activeTool = "off";
   let isDrawing = false;
   let startX = 0;
@@ -29,6 +29,9 @@
     } else if (message.type === "codeGenerated") {
       generatedCode = message.data;
       $("codeOutput").value = generatedCode.full;
+    } else if (message.type === "exportComplete") {
+      $("exportResult").hidden = false;
+      $("exportResult").textContent = `${message.data.fileName}: ${message.data.summary}`;
     }
   });
 
@@ -50,6 +53,8 @@
     $("exportFormat").value = "original";
     $("resizeFit").value = "inside";
     $("exportClean").checked = Boolean(currentImg.hasExif);
+    $("exportResult").hidden = true;
+    $("exportResult").textContent = "";
     originalRatio = currentImg.width && currentImg.height ? currentImg.width / currentImg.height : 1;
 
     resetCanvas();
@@ -102,6 +107,35 @@
   ["exportFormat", "exportFilter", "resizeFit", "exportClean"].forEach((id) => {
     $(id).addEventListener("change", updateExportPreview);
   });
+
+  document.querySelectorAll("[data-preset]").forEach((button) => {
+    button.addEventListener("click", () => {
+      applyPreset(button.dataset.preset);
+    });
+  });
+
+  function applyPreset(preset) {
+    const presets = {
+      thumb: { w: 320, h: 320, fit: "inside", format: "webp", quality: 78 },
+      avatar: { w: 512, h: 512, fit: "cover", format: "webp", quality: 82 },
+      hero: { w: 1920, h: 1080, fit: "inside", format: "webp", quality: 82 },
+      og: { w: 1200, h: 630, fit: "cover", format: "webp", quality: 86 },
+    };
+    const next = presets[preset];
+    if (!next) {
+      return;
+    }
+    isRatioLocked = false;
+    $("btnLockRatio").textContent = "Free";
+    $("resW").value = next.w;
+    $("resH").value = next.h;
+    $("resizeFit").value = next.fit;
+    $("exportFormat").value = next.format;
+    $("qualSlider").value = next.quality;
+    $("qualValue").textContent = `${next.quality}%`;
+    $("exportFilter").value = "none";
+    updateExportPreview();
+  }
 
   function updateExportPreview() {
     if (!currentImg) {
@@ -335,6 +369,9 @@
   $("btnCopyCode").addEventListener("click", () => copyValue(generatedCode.full));
   $("btnCopyImports").addEventListener("click", () => copyValue(generatedCode.imports));
   $("btnCopyComponent").addEventListener("click", () => copyValue(generatedCode.component));
+  $("btnCopyMarkdown").addEventListener("click", () => copyValue(generatedCode.markdown));
+  $("btnCopyCss").addEventListener("click", () => copyValue(generatedCode.cssBackground));
+  $("btnCopyHtml").addEventListener("click", () => copyValue(generatedCode.html));
   $("btnGenFavicons").addEventListener("click", () => vscode.postMessage({ type: "generateFavicons" }));
   $("btnBase64").addEventListener("click", () => vscode.postMessage({ type: "copyBase64" }));
   $("btnGenerateDummy").addEventListener("click", () => {

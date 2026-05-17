@@ -1,60 +1,83 @@
-# BetterImages 📸
+# BetterImages
 
-**BetterImages** is a professional image optimization and code generation suite designed for frontend developers who want to streamline their workflow and save time without leaving their editor.
+**BetterImages** is a local image optimization and code generation toolbox for frontend developers working inside VS Code.
 
-Unlike web-based converters or heavy external software, **BetterImages works 100% locally**. Your images and data never leave your machine.
+It helps you inspect, resize, convert, crop, generate snippets, create placeholders, and prepare image assets without sending your files to external services.
 
-## ✨ Key Features
+## What's New in 1.4
 
-### 1. 💻 Framework-Aware Code Generation
+- Redesigned sidebar with clearer sections for selected-image tools and global tools.
+- Global tools are always available, including Dummy Placeholder and Color Picker.
+- Export presets for common frontend assets: Thumbnail, Avatar, Hero, and Open Graph image.
+- Export result feedback with before/after size and saved percentage.
+- Safer exports that avoid overwriting existing files by generating unique names.
+- Improved resize behavior with `inside`, `contain`, `cover`, and `fill` modes.
+- Quick snippet copy buttons for Markdown, CSS background, HTML, imports, and component code.
+- Updated Marketplace icon.
+- Updated tooling, tests, packaging scripts, and dependency audit cleanup.
 
-Stop writing boilerplate image tags. Select an image, choose your framework, and instantly get production-ready code:
+## Key Features
 
-- **Next.js & Nuxt:** Auto-imports and generates optimized `<Image>` / `<NuxtImg>` components.
-- **React, Astro, Vue & HTML5:** Automatically generates responsive `<picture>` wrappers and standard tags with dynamic width/height attributes.
-- **Responsive Toggle:** Wrap any image in a `<picture>` tag ready for mobile assets with a single click.
+### Image Export & Optimization
 
-### 2. 🎨 Interactive Canvas Tools
+Powered by `sharp`, BetterImages can process images locally in your workspace.
 
-Draw directly on your images inside VS Code!
+- Convert images to **WebP** or **AVIF**.
+- Resize with aspect-ratio lock and explicit fit modes.
+- Apply filters: grayscale, sepia, blur, and negate.
+- Strip metadata when you want smaller, cleaner assets.
+- Use ready-made presets for thumbnails, avatars, hero images, and Open Graph images.
+- See the optimization result after export, including before/after file size.
 
-- **Image Map Generator:** Draw rectangles or perfect circles over your image to instantly generate `<map>` and `<area>` HTML coordinates. The code updates in real-time.
-- **Crop Tool:** Visually drag a crop box and save a perfectly trimmed copy of your image directly into your workspace.
+### Framework-Aware Code Generation
 
-### 3. 🚀 Batch Export & Optimization Pipeline
+Select an image and generate production-friendly snippets for common frontend stacks:
 
-A built-in powerhouse powered by `sharp`. Apply multiple transformations at once and export a single, perfect file:
+- HTML5
+- React JSX
+- Next.js `Image`
+- Vue
+- Nuxt `NuxtImg`
+- Angular
+- Astro assets
 
-- **Smart Resize:** Change dimensions with a built-in Aspect Ratio lock (🔒) to prevent distortion.
-- **Next-Gen Formats:** Convert any image to **WebP** or **AVIF** with an adjustable quality slider (1% - 100%).
-- **New Filters:** Instantly apply **Grayscale**, a warm **Sepia**, or a strong **Blur** (perfect for background assets).
-- **Metadata Stripper:** Automatically detects if your image has heavy EXIF data (GPS, Camera info) and strips it clean to save kilobytes.
+You can also copy focused snippets for:
 
-### 4. ⚡ Global Developer Tools
+- Markdown image syntax
+- CSS `background-image`
+- Plain HTML `<img>`
+- Imports only
+- Component only
 
-Tools available at all times, even without selecting an image:
+### Interactive Canvas Tools
 
-- **Color Picker (🔍 NEW):** Use the Eyedropper to pick any color from your screen (image, code, or interface) and view its HEX and RGB code. Click to copy instantly.
-- **Favicon Generator:** One-click generation of `16x16`, `32x32`, and `180x180` Apple Touch icons, copying the required HTML `<link>` tags straight to your clipboard.
-- **Base64 Converter:** Copy any image as a Base64 Data URI string.
-- **Dummy Image Generator:** Need a placeholder? Generate an SVG placeholder of any size, background color, and text directly into your project root.
+Draw directly over the selected image preview.
 
----
+- **Image Map Generator:** draw rectangles or circles and generate `<map>` / `<area>` HTML.
+- **Crop Tool:** drag a crop area and save a cropped copy back into your workspace.
 
-## 🚀 How to Use
+### Global Developer Tools
 
-Once installed, BetterImages integrates directly into your VS Code Explorer.
+These tools are available even before selecting an image:
 
-### Basic Workflow
+- **Dummy Placeholder:** generate SVG placeholder images with custom size, background, text color, and label.
+- **Color Picker:** pick a color from the screen and copy HEX or RGB values.
 
-1. Open your VS Code Explorer.
-2. **Right-click** on any image file (`.jpg`, `.png`, `.webp`, `.avif`, etc.).
-3. Select **`Process with BetterImages`** from the context menu.
-4. The BetterImages Toolbox will open in your sidebar, ready to use!
+When an image is selected, you also get:
 
----
+- **Favicon Generator:** create `16x16`, `32x32`, and `180x180` icons and copy the HTML tags.
+- **Base64 Converter:** copy the selected image as a Base64 Data URI.
 
-## 📸 Screenshots
+## How to Use
+
+1. Open a workspace in VS Code.
+2. Right-click an image file in the Explorer.
+3. Select **Process with BetterImages**.
+4. Use the BetterImages sidebar to export, crop, generate code, or copy asset snippets.
+
+Supported image context menu extensions include `.jpg`, `.jpeg`, `.png`, `.svg`, `.gif`, `.webp`, and `.avif`.
+
+## Screenshots
 
 ### Toolbox Overview
 
@@ -64,21 +87,35 @@ Once installed, BetterImages integrates directly into your VS Code Explorer.
 
 ![Canvas View](media/screenshot-canvas.png)
 
----
+## Privacy
 
-## 🛡️ Privacy Policy
+BetterImages works locally.
 
-Your assets are yours.
+- No telemetry.
+- No image uploads.
+- No external processing.
+- Image conversion, cropping, metadata handling, and placeholder generation run on your machine.
 
-- **No Telemetry:** This extension does **NOT** send any images, usage data, or analytics to external servers.
-- **Local Processing:** All image conversions, cropping, and optimizations are calculated and executed 100% locally on your machine using the `sharp` library.
+## Development
 
----
+```bash
+npm install
+npm run compile
+npm run lint
+npm test
+```
 
-## 📝 License
+Package target-specific VSIX builds:
+
+```bash
+npm run package:darwin-arm64
+npm run package:darwin-x64
+npm run package:linux-x64
+npm run package:win32-x64
+```
+
+Target-specific packages are recommended because the extension uses native `sharp` binaries.
+
+## License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-**Happy Coding!** 🚀

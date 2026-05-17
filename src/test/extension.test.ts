@@ -6,6 +6,7 @@ import {
   buildDummySvg,
   buildImageCode,
   buildProcessedFilePath,
+  calculateExportSavings,
   createUniqueFilePath,
   normalizeBatchPayload,
   normalizeCropPayload,
@@ -110,6 +111,9 @@ suite("BetterImages core", () => {
     assert.match(generated.full, /alt="Sergio &quot;hero&quot; &lt;image&gt;"/);
     assert.match(generated.full, /useMap="#hero-image-map"/);
     assert.match(generated.component, /<map name="hero-image-map">/);
+    assert.strictEqual(generated.markdown, "![Sergio &quot;hero&quot; &lt;image&gt;](./hero image.png)");
+    assert.strictEqual(generated.cssBackground, 'background-image: url("./hero image.png");');
+    assert.match(generated.html, /<img src="\.\/hero image\.png"/);
   });
 
   test("generates framework-specific snippets", () => {
@@ -134,5 +138,14 @@ suite("BetterImages core", () => {
     assert.match(next.full, /sizes=/);
     assert.match(astro.imports, /astro:assets/);
     assert.match(astro.imports, /@\/assets\/card\.png/);
+  });
+
+  test("calculates export savings labels and percentage", () => {
+    const savings = calculateExportSavings(4096, 1024);
+
+    assert.strictEqual(savings.originalLabel, "4.0 KB");
+    assert.strictEqual(savings.outputLabel, "1.0 KB");
+    assert.strictEqual(savings.savedPercent, 75);
+    assert.strictEqual(savings.summary, "4.0 KB -> 1.0 KB (saved 75%)");
   });
 });
